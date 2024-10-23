@@ -1,3 +1,3 @@
-const SQL = require('./SQL')
+const SQL = require('./sql')
 
 module.exports = SQL
