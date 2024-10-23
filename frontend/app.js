@@ -30,6 +30,10 @@ app.get('/chat', (req, res) => {
   res.sendFile(path.join(`${__dirname}/public`, 'chat.html'))
 })
 
+app.get('/biometric', (req, res) => {
+  res.sendFile(path.join(`${__dirname}/public`, 'biometric.html'))
+})
+
 app.listen(port, () => {
   console.info(`Server listening on server http://localhost:${port}`)
 })
