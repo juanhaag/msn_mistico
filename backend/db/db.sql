@@ -67,10 +67,42 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUsersGroup` ()   BEGIN
           INNER JOIN group_type ON group_type.id = group_user.id_group;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Register` (IN `_username` VARCHAR(50), IN `_password` VARCHAR(50), OUT `lastId` INT)   BEGIN
-    INSERT INTO users (username, password) VALUES (_username, _password);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Register` (
+    IN `_username` VARCHAR(50), 
+    IN `_password` VARCHAR(50), 
+    IN `_email` VARCHAR(100), 
+    OUT `lastId` INT
+)   
+BEGIN
+    INSERT INTO users (username, password, email) VALUES (_username, _password, _email);
     SET lastId = LAST_INSERT_ID();
 END$$
+DELIMITER $$
+
+CREATE PROCEDURE GetUserByEmail(IN userEmail VARCHAR(255))
+BEGIN
+    SELECT id, username, email, password, token
+    FROM users
+    WHERE email = userEmail;
+END $$
+DELIMITER $$
+
+DELIMITER //
+
+CREATE PROCEDURE VerifyUser(IN p_email VARCHAR(255))
+BEGIN
+    -- Actualiza email_verified a true para el usuario con el email proporcionado
+    UPDATE users SET email_verified = TRUE WHERE email = p_email;
+
+    -- Selecciona el usuario para retornar
+    SELECT * FROM users WHERE email = p_email;
+END //
+
+DELIMITER ;
+
+DELIMITER ;
+
+DELIMITER ;
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Session` (IN `idUser` INT, IN `isLogged` TINYINT)   BEGIN
     INSERT INTO session (id_user, logged) VALUES (idUser, isLogged);
@@ -349,6 +381,8 @@ ALTER TABLE `session`
   ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`);
 COMMIT;
 ALTER TABLE users ADD COLUMN token VARCHAR(255) NULL;
+ALTER TABLE users ADD COLUMN email VARCHAR(255) NULL;
+
 ALTER TABLE users ADD COLUMN email_verified TINYINT(1) DEFAULT 0;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

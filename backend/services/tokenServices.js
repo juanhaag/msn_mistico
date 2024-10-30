@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const db = require('../sql/sql.js'); 
+const { log } = require('console');
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -9,9 +10,9 @@ const secretKey = process.env.SECRET_KEY;
  * @returns {string} - El token generado.
  */
 function generateToken(userEmail) {
-    const tokenData = `${userEmail}:${Date.now()}`;
+    const tokenData = `${userEmail}`; 
     const token = crypto.createHmac('sha256', secretKey).update(tokenData).digest('hex');
-    return `customAuth-${token}`;
+    return `noEsJwT-${token}`;
 }
 
 /**
@@ -20,7 +21,7 @@ function generateToken(userEmail) {
  * @param {string} userEmail - El email del usuario para asociar el token.
  */
 async function saveTokenToUser(token, userEmail) {
-    const connection = await db.initConnection(); // Inicializa la conexión
+    const connection = await db.initConnection(); 
     await connection.query('UPDATE users SET token = ? WHERE email = ?', [token, userEmail]);
 }
 

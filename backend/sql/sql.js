@@ -10,6 +10,7 @@ module.exports = {
       connection = await mysql.createConnection(database)
       conectionStablished = true
     }
+    return connection
   },
   closeConnection: async () => {
     if (conectionStablished) {
@@ -145,9 +146,9 @@ module.exports = {
       return [{ data: 'error', message: error }]
     }
   },
-  register: async (username, password) => {
+  register: async (username, password, email) => {
     try {
-      await connection.execute('CALL Register(?, ?, @lastId)', [username, password])
+      await connection.execute('CALL Register(?, ?,?, @lastId)', [username, password,email])
       const [[{ lastId }]] = await connection.execute('SELECT @lastId as lastId')
       return lastId
     } catch (error) {
@@ -195,6 +196,31 @@ module.exports = {
     } catch (error) {
       console.info('error', error)
       return [{ data: 'error', message: error }]
+    }
+  },
+  getUserByEmail: async (email) => {
+    try {
+      const [[user]] = await connection.execute('CALL GetUserByEmail(?)', [email])
+      if (user.length > 0) {
+        return user[0]
+      }
+      return null
+    } catch (error) {
+      console.info('error', error)
+      return { data: 'error', message: error }
+    }
+  },
+  verifyUser: async (email) => {
+    try {
+      const [[user]] = await connection.execute('CALL VerifyUser(?)', [email]);
+    
+      if (user && user.length > 0) {
+        return user[0]; 
+      }
+      return null; 
+    } catch (error) {
+      console.info('Error en verifyUser:', error);
+      return { data: 'error', message: error.message }; 
     }
   }
 }
