@@ -1,4 +1,4 @@
-const URL = 'http://localhost:8080'
+const URL = 'http://localhost:8081'
 const ws = new WebSocket('ws://localhost:3000')
 const isConnectionOpen = ws.OPEN === ws.readyState
 

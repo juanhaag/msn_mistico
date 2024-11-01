@@ -18,6 +18,11 @@
       <img src="./assets/etiquetado.png" class="img-fluid" style="width: 150px; height: 150px" />
       <form class="w-25">
         <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" required />
+          <label class="form-label text-danger" id="errorLabelUser"></label>
+        </div>
+        <div class="mb-3">
           <label for="username" class="form-label">Usuario</label>
           <input type="text" class="form-control" id="username" required />
           <label class="form-label text-danger" id="errorLabelUser"></label>

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-const URL = 'http://localhost:8080'
+const URL = 'http://localhost:8081'
 const URL_BIOMETRIC = 'http://127.0.0.1:8000'
 const video = document.getElementById('video')
 

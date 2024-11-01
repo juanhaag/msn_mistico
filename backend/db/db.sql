@@ -27,45 +27,45 @@ DELIMITER $$
 --
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Admin` (IN `idUser` INT)   BEGIN
     SELECT * FROM group_user WHERE id_user = idUser AND id_group = 1;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetActions` ()   BEGIN
     SELECT * from action ORDER BY action.id ASC;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetActionsGroup` ()   BEGIN
     SELECT action.id, action.name, group_type.name AS groupName from action
           INNER JOIN group_action ON group_action.id_action = action.id
           INNER JOIN group_type ON group_type.id = group_action.id_group;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetGroups` ()   BEGIN
     SELECT * from group_type;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetGroupUsers` ()   BEGIN
     SELECT group_type.id, group_type.name, users.username from group_type
           INNER JOIN group_user ON group_user.id_group = group_type.id
           INNER JOIN users ON users.id = group_user.id_user;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserByID` (IN `id_user` INT)   BEGIN
     SELECT * FROM users WHERE id = id_user;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserByNameAndPass` (IN `_username` VARCHAR(50), IN `_password` VARCHAR(50))   BEGIN
     SELECT * FROM users WHERE username = _username AND password = _password;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUsers` ()   BEGIN
    SELECT users.id, users.username, session.logged as isLogged from users INNER JOIN session ON session.id_user = users.id ORDER BY users.id ASC;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUsersGroup` ()   BEGIN
     SELECT users.id, users.username, group_type.name AS groupName from users
           INNER JOIN group_user ON group_user.id_user = users.id
           INNER JOIN group_type ON group_type.id = group_user.id_group;
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Register` (
     IN `_username` VARCHAR(50), 
@@ -76,8 +76,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Register` (
 BEGIN
     INSERT INTO users (username, password, email) VALUES (_username, _password, _email);
     SET lastId = LAST_INSERT_ID();
-END$$
-DELIMITER $$
+END $$
 
 CREATE PROCEDURE GetUserByEmail(IN userEmail VARCHAR(255))
 BEGIN
@@ -85,9 +84,6 @@ BEGIN
     FROM users
     WHERE email = userEmail;
 END $$
-DELIMITER $$
-
-DELIMITER //
 
 CREATE PROCEDURE VerifyUser(IN p_email VARCHAR(255))
 BEGIN
@@ -98,41 +94,35 @@ BEGIN
     SELECT * FROM users WHERE email = p_email;
 END //
 
-DELIMITER ;
-
-DELIMITER ;
-
-DELIMITER ;
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Session` (IN `idUser` INT, IN `isLogged` TINYINT)   BEGIN
     INSERT INTO session (id_user, logged) VALUES (idUser, isLogged);
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetActionGroups` (IN `idAction` INT, IN `idGroup` INT)   BEGIN
     INSERT INTO group_action (id_action, id_group) VALUES (idAction, idGroup);
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetActions` (IN `nombre` VARCHAR(100), OUT `lastId` INT)   BEGIN
     INSERT INTO action (name) VALUES (nombre);
     SET lastId = LAST_INSERT_ID();
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetGroups` (IN `nombre` VARCHAR(100))   BEGIN
     INSERT INTO group_type (name) VALUES (nombre);
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetUser` (IN `userName` VARCHAR(100), OUT `lastId` INT)   BEGIN
     INSERT INTO users (name) VALUES (userName);
     SET lastId = LAST_INSERT_ID();
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetUserGroups` (IN `idUser` INT, IN `idGroup` INT)   BEGIN
     INSERT INTO group_user (id_user, id_group) VALUES (idUser, idGroup);
-END$$
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UserExists` (IN `_username` VARCHAR(50))   BEGIN
     SELECT * FROM users WHERE username = _username;
-END$$
+END $$
 
 DELIMITER ;
 

@@ -1,5 +1,6 @@
-const URL = 'http://localhost:8080'
+const URL = 'http://localhost:8081'
 const checkbox = document.getElementById('showPassword')
+const email = document.getElementById('email')
 const password = document.getElementById('password')
 const username = document.getElementById('username')
 const errorLabelUser = document.getElementById('errorLabelUser')
@@ -17,6 +18,7 @@ function handleChangeCheckbox({ target: { checked } }) {
 async function handleSubmit(event) {
   event.preventDefault()
 
+  const mail = email.value
   const user = username.value
   const pass = password.value
 
@@ -30,7 +32,7 @@ async function handleSubmit(event) {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: user, password: pass })
+    body: JSON.stringify({ email: mail, username: user, password: pass })
   })
 
   const { data } = await response.json()
