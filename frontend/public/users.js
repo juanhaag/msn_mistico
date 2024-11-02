@@ -9,7 +9,7 @@ const inputUser = document.getElementById('username')
 const logout = document.getElementById('logout')
 
 async function getUsers() {
-  const response = await fetch(`${URL}/users?token=noEsJwT-f52e5ba9c5c89e2bd97c01e19198866aa61383d2c3a199dd1f77daccd60fa5b1`)
+  const response = await fetch(`${URL}/users?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }

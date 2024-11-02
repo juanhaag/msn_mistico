@@ -22,9 +22,9 @@ const verifyAccount = async (req, res) => {
     await SQL.verifyUser(email);
 
     await SQL.closeConnection();
-
-    res.status(200).send({ message: 'Cuenta verificada exitosamente' });
-  } catch (error) {
+    //Se podria poner la url del front en una variable de entorno
+    res.status(200).redirect('http://localhost:8000/login');
+    } catch (error) {
     console.error('Error al verificar la cuenta:', error);
     res.status(500).send({ message: 'Error interno del servidor' });
   }

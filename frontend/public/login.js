@@ -44,7 +44,6 @@ async function handleSubmit(event) {
   })
 
   const { data } = await response.json()
-
   if (response.status !== 200) {
     password.className += ' border-danger'
     username.className += ' border-danger'
@@ -52,7 +51,7 @@ async function handleSubmit(event) {
     errorLabelUser.innerText = data.message
     return
   }
-
+  localStorage.setItem('token', data.authToken)
   localStorage.setItem('user', JSON.stringify(data))
 
   if (data.isAdmin) {

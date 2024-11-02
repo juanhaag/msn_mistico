@@ -22,7 +22,11 @@ const RouteLogin = async (req, res) => {
 
     const isAdmin = await SQL.admin(user.id)
     await SQL.closeConnection()
-    res.status(200).send({ data: { isAdmin, idUser: user.id } })
+    if(!user.email_verified){
+      res.status(403).send({ data: { message: 'Usuario no verificado' } })
+      return
+    }
+    res.status(200).send({ data: { isAdmin, idUser: user.id, authToken:user.token } })
   } catch (error) {
     console.info(error)
     res.status(500).send({ data: { message: 'Internal server error' } })
