@@ -8,21 +8,21 @@ const groupSelected = document.getElementById('selected')
 const logout = document.getElementById('logout')
 
 async function getGrupos() {
-  const response = await fetch(`${URL}/groups`)
+  const response = await fetch(`${URL}/groups?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }
 }
 
 async function getAcciones() {
-  const response = await fetch(`${URL}/actions`)
+  const response = await fetch(`${URL}/actions?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }
 }
 
 async function setAccion(name, grupos) {
-  await fetch(`${URL}/actions`, {
+  await fetch(`${URL}/actions?token=${localStorage.getItem('token')}`, {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
@@ -94,7 +94,7 @@ function handleOnSelectChange() {
 
 async function handleOnClickLogout() {
   const { idUser } = JSON.parse(localStorage.getItem('user'))
-  const response = await fetch(`${URL}/logout`, {
+  const response = await fetch(`${URL}/logout?token=${localStorage.getItem('token')}`, {
     method: 'DELETE',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },

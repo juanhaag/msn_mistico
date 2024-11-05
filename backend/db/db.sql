@@ -92,7 +92,7 @@ BEGIN
 
     -- Selecciona el usuario para retornar
     SELECT * FROM users WHERE email = p_email;
-END //
+END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Session` (IN `idUser` INT, IN `isLogged` TINYINT)   BEGIN
     INSERT INTO session (id_user, logged) VALUES (idUser, isLogged);
@@ -217,18 +217,7 @@ CREATE TABLE `session` (
 --
 
 INSERT INTO `session` (`id`, `logged`, `id_user`) VALUES
-(1, 0, 1),
-(2, 0, 2),
-(3, 0, 3),
-(4, 1, 4),
-(5, 0, 5),
-(6, 0, 6),
-(7, 0, 7),
-(8, 0, 10),
-(9, 1, 1),
-(10, 1, 1),
-(11, 1, 1),
-(12, 1, 1);
+(1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -247,16 +236,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'Tadeo', '1234'),
-(2, 'Tadeus', '1234'),
-(3, 'Tadeus0802', '1234'),
-(4, 'Matias', '1234'),
-(5, 'New user', '1234'),
-(6, 'Usuario2', '1234'),
-(7, 'Test', '1234'),
-(8, 'Tade1234', '1234'),
-(9, 'sdfgh', '123r'),
-(10, 'Silvia', '1234');
+(1, 'admin', 'admin');
 
 --
 -- Índices para tablas volcadas

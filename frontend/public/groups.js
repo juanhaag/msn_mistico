@@ -7,7 +7,7 @@ const tbody = document.querySelector('tbody')
 const logout = document.getElementById('logout')
 
 async function getGrupos() {
-  const response = await fetch(`${URL}/groups`)
+  const response = await fetch(`${URL}/groups?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }
@@ -36,7 +36,7 @@ async function handleOnLoad() {
 
 async function handleOnSubmit() {
   const name = inputGroup.value
-  await fetch(`${URL}/groups`, {
+  await fetch(`${URL}/groups?token=${localStorage.getItem('token')}`, {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
@@ -46,7 +46,7 @@ async function handleOnSubmit() {
 
 async function handleOnClickLogout() {
   const { idUser } = JSON.parse(localStorage.getItem('user'))
-  const response = await fetch(`${URL}/logout`, {
+  const response = await fetch(`${URL}/logout?token=${localStorage.getItem('token')}`, {
     method: 'DELETE',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },

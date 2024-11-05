@@ -16,7 +16,7 @@ async function getUsers() {
 }
 
 async function getGrupos() {
-  const response = await fetch(`${URL}/groups`)
+  const response = await fetch(`${URL}/groups?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }
@@ -63,7 +63,7 @@ function handleOnSubmit(event) {
   const optionsSelected = [...groupSelected.children].map((i) => {
     return parseInt(i.id)
   })
-  fetch(`${URL}/users`, {
+  fetch(`${URL}/users?token=${localStorage.getItem('token')}`, {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
@@ -96,7 +96,7 @@ function handleOnSelectChange() {
 
 async function handleOnClickLogout() {
   const { idUser } = JSON.parse(localStorage.getItem('user'))
-  const response = await fetch(`${URL}/logout`, {
+  const response = await fetch(`${URL}/logout?token=${localStorage.getItem('token')}`, {
     method: 'DELETE',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
