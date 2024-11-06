@@ -1,75 +1,93 @@
-const express = require('express')
-const http = require('http')
-const WebSocket = require('ws')
-const fs = require('fs')
+const express = require("express");
+const http = require("http");
+const WebSocket = require("ws");
+const fs = require("fs").promises; // Importar fs.promises para usar promesas
 
-const app = express()
-const server = http.createServer(app)
-const wss = new WebSocket.Server({ server })
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-app.use(express.static('public'))
+const PORT = 3000;
 
-const activeConnections = new Set()
+const connectedUsers = [];
+const disconnectedUsers = [];
 
-const sendDataOnConected = (ws) => {
-  const jsonMessages = JSON.parse(fs.readFileSync('./logs/messages.json'))
-  const jsonUsers = JSON.parse(fs.readFileSync('./logs/users.json'))
-  ws.send(JSON.stringify({ messages: jsonMessages, usersLogged: jsonUsers }))
+// Host de front end
+app.use(express.static("../"));
+
+server.listen(PORT, () => {
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
+// WebSocket para mensajes
+wss.on("connection", handleWebSocketConnection);
+
+function handleWebSocketConnection(ws) {
+    console.log("Conexión para mensajes: OK");
+    ws.on("message", async (message) => {
+        try {
+            const data = JSON.parse(message);
+            if (data.state) {
+                handleUserConnection(data, ws);
+            } else {
+                await handleReceivedMessage(data, message);
+            }
+        } catch (error) {
+            console.error("Error al analizar el mensaje JSON:", error);
+        }
+    });
+
+    // Manejo de desconexiones de usuarios y eliminación del usuario de connectedUsers
+    ws.on("close", () => {
+        handleUserDisconnect(ws);
+    });
 }
 
-wss.on('connection', (ws) => {
-  console.info('Cliente WebSocket conectado')
+function handleUserConnection(data, ws) {
+    const { username, state } = data;
+    connectedUsers.push({ username, state, ws });
 
-  activeConnections.add(ws)
-  sendDataOnConected(ws)
+    // Envía a todos los usuarios conectados la lista actualizada de todos los usuarios
+    sendUserListToAll();
+}
+function handleUserDisconnect(ws) {
+    // Elimina al usuario de la lista de usuarios conectados
+    const index = connectedUsers.findIndex((user) => user.ws === ws);
+    if (index !== -1) {
+        const disconnectedUser = connectedUsers.splice(index, 1)[0];
+        console.log(`Usuario desconectado: ${disconnectedUser.username}`);
 
-  ws.on('message', (res) => {
-    const response = JSON.parse(res)
-    console.info('response', response)
-    if (response.userLeaving) {
-      const jsonUsers = JSON.parse(fs.readFileSync('./logs/users.json'))
+        // Agrega al usuario desconectado a la lista de usuarios desconectados
+        disconnectedUsers.push({
+            username: disconnectedUser.username,
+            state: "offline",
+        });
 
-      const usersFiltered = jsonUsers.filter((user) => {
-        return user.userLogged !== response.userLeaving
-      })
-
-      const newUsers = [...usersFiltered]
-      fs.writeFileSync('./logs/users.json', JSON.stringify(newUsers))
-      activeConnections.forEach((connection) => {
-        connection.send(JSON.stringify({ userLoggedOut: response.userLeaving }))
-      })
-      return
+        // Envía a todos los usuarios conectados la lista actualizada de usuarios desconectados
+        sendUserListToAll();
     }
-    if (response.userLogged) {
-      const jsonUsers = JSON.parse(fs.readFileSync('./logs/users.json'))
+}
+function sendUserListToAll() {
+    // Concatena los usuarios conectados y desconectados
+    const allUsers = [...connectedUsers, ...disconnectedUsers];
 
-      // eslint-disable-next-line arrow-body-style
-      if (jsonUsers.find((user) => user.userLogged === response.userLogged)) {
-        activeConnections.forEach((connection) => {
-          connection.send(JSON.stringify({ usersLogged: jsonUsers }))
-        })
-        return
-      }
+    // Filtra duplicados en base al username
+    const uniqueUsers = allUsers.filter(
+        (user, index, self) =>
+            index === self.findIndex((u) => u.username === user.username)
+    );
 
-      const newUsers = [...jsonUsers, response]
-      fs.writeFileSync('./logs/users.json', JSON.stringify(newUsers))
-      activeConnections.forEach((connection) => {
-        connection.send(JSON.stringify({ usersLogged: newUsers }))
-      })
-      return
-    }
-
-    const jsonMessages = JSON.parse(fs.readFileSync('./logs/messages.json'))
-    response.id = jsonMessages.length
-    const newMessages = [...jsonMessages, response]
-    fs.writeFileSync('./logs/messages.json', JSON.stringify(newMessages))
-    activeConnections.forEach((connection) => {
-      connection.send(JSON.stringify({ messages: newMessages, usersLogged: [] }))
-    })
-  })
-})
-
-const PORT = process.env.PORT || 3000
-server.listen(PORT, () => {
-  console.info(`Servidor Node.js escuchando en el puerto ${PORT}`)
-})
+    // Envía la lista de usuarios a todos los usuarios conectados
+    sendToAllConnectedUsers(JSON.stringify(uniqueUsers));
+}
+function sendToAllConnectedUsers(message) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    });
+}
+async function handleReceivedMessage(data, message) {
+    console.log(`Mensaje recibido del frontend: ${message}`);
+    sendToAllConnectedUsers(JSON.stringify(data));
+}
