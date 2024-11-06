@@ -1,11 +1,14 @@
 const sendVerificationEmail = require('../services/emailService')
 const { saveTokenToUser, generateToken } = require('../services/tokenServices')
 const SQL = require('../sql')
+const twilio = require("twilio");
+
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const RouteLogin = async (req, res) => {
   try {
     const { body } = req
-    const { username, password } = body
+    const { username, password, codigoValidacion } = body
 
     if (!password.match(/^(?=.*\d).{4,8}$/)) {
       res
@@ -35,6 +38,20 @@ const RouteLogin = async (req, res) => {
       return
     }
     
+    if(!userExists.verifiedCode){
+      if(codigoValidacion !== userExists.verifyCode){
+        await client.messages.create({
+          body: `Tu código de verificación es: ${userExists.verifyCode}`,
+          from: "+1 240 303 3665", // Número de Twilio
+          to: userExists.telefono.includes('+') ? userExists.telefono : `+${userExists.telefono}`
+        })
+        await SQL.closeConnection()
+        res.status(401).send({ data: { message: 'Ingrese código de validación' } })
+        return
+      }
+      await SQL.verifyCode(userExists.id)
+    }
+
     const user = await SQL.login(username, password)
     if (!user) {
       await SQL.closeConnection()

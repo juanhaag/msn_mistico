@@ -1,5 +1,6 @@
 const URL = 'http://localhost:8081'
 const checkbox = document.getElementById('showPassword')
+const telefono = document.getElementById('telefono')
 const email = document.getElementById('email')
 const password = document.getElementById('password')
 const username = document.getElementById('username')
@@ -21,6 +22,7 @@ async function handleSubmit(event) {
   const mail = email.value
   const user = username.value
   const pass = password.value
+  const numeroTelefono = telefono.value
 
   if (!pass.match(/^(?=.*\d).{4,8}$/)) {
     password.className += ' border-danger'
@@ -32,7 +34,7 @@ async function handleSubmit(event) {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: mail, username: user, password: pass })
+    body: JSON.stringify({ email: mail, username: user, password: pass, telefono: numeroTelefono })
   })
 
   const { data } = await response.json()

@@ -5,7 +5,7 @@ const sendVerificationEmail = require('../services/emailService');
 const RouteRegister = async (req, res) => {
   try {
     const { body } = req;
-    const { username, password, email } = body;
+    const { username, password, email, telefono } = body;
 
     if (!password.match(/^(?=.*\d).{4,8}$/)) {
       res.status(400).send({
@@ -23,7 +23,9 @@ const RouteRegister = async (req, res) => {
       return;
     }
 
-    const idUser = await SQL.register(username, password, email);
+    verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Genera un código de 6 dígitos
+
+    const idUser = await SQL.register(username, password, email, telefono, verificationCode);
 
     const token = generateToken(email);
     console.log('Token:', token);

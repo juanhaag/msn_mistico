@@ -18,6 +18,7 @@
     "http": "^0.0.1-security",
     "mysql2": "^3.9.3",
     "nodemailer": "^6.9.16",
+    "twilio": "^5.3.5",
     "ws": "^8.18.0"
   }
 }

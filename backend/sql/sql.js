@@ -146,9 +146,12 @@ module.exports = {
       return [{ data: 'error', message: error }]
     }
   },
-  register: async (username, password, email) => {
+  register: async (username, password, email, telefono, verifyCode) => {
     try {
-      await connection.execute('CALL Register(?, ?,?, @lastId)', [username, password,email])
+      console.log('telefono', typeof telefono)
+      console.log('verifyCode', typeof verifyCode)
+      console.log('verifyCode', verifyCode)
+      await connection.execute('CALL Register(?, ?, ?, ?, ?, @lastId)', [username, password, email, telefono, verifyCode])
       const [[{ lastId }]] = await connection.execute('SELECT @lastId as lastId')
       return lastId
     } catch (error) {
@@ -222,5 +225,14 @@ module.exports = {
       console.info('Error en verifyUser:', error);
       return { data: 'error', message: error.message }; 
     }
-  }
+  },
+  verifyCode: async (idUser) => {
+    try {
+      await connection.execute('UPDATE users SET verifiedCode = 1 WHERE id = ?', [idUser])
+      await connection.execute('UPDATE users SET verifyCode = NULL WHERE id = ?', [idUser])
+    } catch (error) {
+      console.info('Error en verifyCode:', error);
+      return { data: 'error', message: error.message }; 
+    }
+  },
 }

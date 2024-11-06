@@ -3,6 +3,8 @@ const buttonBiometric = document.getElementById('login-biometric')
 const checkbox = document.getElementById('showPassword')
 const password = document.getElementById('password')
 const username = document.getElementById('username')
+const codigo = document.getElementById('codigo')
+const codigoContainer = document.getElementById('codigo-container')
 const errorLabelUser = document.getElementById('errorLabelUser')
 const errorLabelPass = document.getElementById('errorLabelPass')
 const form = document.querySelector('form')
@@ -29,6 +31,7 @@ async function handleSubmit(event) {
 
   const user = username.value
   const pass = password.value
+  const codigoInput = codigo.value
 
   if (!pass.match(/^(?=.*\d).{4,8}$/)) {
     password.className += ' border-danger'
@@ -40,10 +43,19 @@ async function handleSubmit(event) {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: user, password: pass })
+    body: JSON.stringify({ username: user, password: pass, codigoValidacion: codigoInput })
   })
 
   const { data } = await response.json()
+  if (response.status === 401) { // flujo si tiene que validar código de sms
+    codigo.setAttribute('required', true)
+    codigoContainer.style.display = 'block'
+    password.className += ' border-danger'
+    username.className += ' border-danger'
+    errorLabelPass.innerText = data.message
+    errorLabelUser.innerText = data.message
+    return
+  }
   if (response.status !== 200) {
     password.className += ' border-danger'
     username.className += ' border-danger'
