@@ -107,6 +107,7 @@ socket.addEventListener("message", async (event) => {
     case "message":
       const nuevaPlantilla = await createMessageTemplate(datos);
       messageList.appendChild(nuevaPlantilla);
+      messageList.scrollTop = messageList.scrollHeight;
       // Actualizar y guardar los mensajes en el Local Storage
       const chatMessages = loadMessages();
       chatMessages.push(datos);
@@ -185,20 +186,20 @@ async function createMessageTemplate(data) {
   const newHeaderMessage = document.createElement("div");
   newHeaderMessage.className = "d-flex flex-row gap-3";
 
-  const userApi = await getUser(idUser)
+  const userApi = await getUser(idUser);
 
   const newUser = document.createElement("p");
-  newUser.innerHTML = userApi.username;
+  newUser.innerText = userApi.username;
   newUser.className = "card-title";
 
   const newDate = document.createElement("p");
-  newDate.innerHTML = `${date.split(" ")[1]}`;
+  newDate.innerText = `${date.split(" ")[1]}`;
   newDate.className = "card-title date";
   newDate.id = "date";
 
   const newParagraph = document.createElement("p");
 
-  newParagraph.innerHTML = message;
+  newParagraph.innerText = message;
   newParagraph.className = "card-text message-text";
   newParagraph.id = "message-text";
 
