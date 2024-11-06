@@ -42,7 +42,7 @@ const wsSendMessage = async (event) => {
 }
 
 const getUser = async (idUser) => {
-  const response = await fetch(`${URL}/user/${idUser}`)
+  const response = await fetch(`${URL}/user/${idUser}?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     const { data } = await response.json()
     return data[0]
@@ -201,7 +201,7 @@ const setLoggedOutUser = (userLoggedOut) => {
 }
 
 async function getUsers() {
-  const response = await fetch(`${URL}/users`)
+  const response = await fetch(`${URL}/users?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     return await response.json()
   }
@@ -209,7 +209,7 @@ async function getUsers() {
 
 async function handleOnClickLogout() {
   const { idUser } = JSON.parse(localStorage.getItem('user'))
-  const response = await fetch(`${URL}/logout`, {
+  const response = await fetch(`${URL}/logout?token=${localStorage.getItem('token')}`, {
     method: 'DELETE',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
