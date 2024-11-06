@@ -42,7 +42,7 @@ const RouteLogin = async (req, res) => {
       if(codigoValidacion !== userExists.verifyCode){
         await client.messages.create({
           body: `Tu código de verificación es: ${userExists.verifyCode}`,
-          from: "+1 240 303 3665", // Número de Twilio
+          from: process.env.TWILIO_PHONE_NUMBER, // Número de Twilio
           to: userExists.telefono.includes('+') ? userExists.telefono : `+${userExists.telefono}`
         })
         await SQL.closeConnection()

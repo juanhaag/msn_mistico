@@ -71,10 +71,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Register` (
     IN `_username` VARCHAR(50), 
     IN `_password` VARCHAR(50), 
     IN `_email` VARCHAR(100), 
+    IN `_telefono` VARCHAR(50),
+    IN `_verifyCode` VARCHAR(150),
     OUT `lastId` INT
 )   
 BEGIN
-    INSERT INTO users (username, password, email) VALUES (_username, _password, _email);
+    INSERT INTO users (username, password, email, telefono, verifyCode) VALUES (_username, _password, _email, _telefono, _verifyCode);
     SET lastId = LAST_INSERT_ID();
 END $$
 
@@ -228,7 +230,9 @@ INSERT INTO `session` (`id`, `logged`, `id_user`) VALUES
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
-  `password` varchar(8) NOT NULL
+  `password` varchar(8) NOT NULL,
+  `telefono` varchar(50) NOT NULL,
+  `verifyCode` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -354,6 +358,8 @@ ALTER TABLE users ADD COLUMN token VARCHAR(255) NULL;
 ALTER TABLE users ADD COLUMN email VARCHAR(255) NULL;
 
 ALTER TABLE users ADD COLUMN email_verified TINYINT(1) DEFAULT 0;
+
+ALTER TABLE users ADD COLUMN verifiedCode TINYINT(1) DEFAULT 0;
 
 INSERT INTO `users` (`email`) VALUES ('admin@gmail.com');
 
