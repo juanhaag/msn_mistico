@@ -181,7 +181,7 @@ module.exports = {
     try {
       const [user] = await connection.execute('CALL GetUserByID(?)', [id])
       if (user.length > 0) {
-        await connection.execute('CALL Session(?, ?)', [user[0].id, 1])
+        await connection.execute('CALL Session(?, ?)', [id, 0])
         return true
       }
     } catch (error) {

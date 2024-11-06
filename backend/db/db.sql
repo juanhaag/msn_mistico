@@ -95,7 +95,7 @@ BEGIN
 END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Session` (IN `idUser` INT, IN `isLogged` TINYINT)   BEGIN
-    INSERT INTO session (id_user, logged) VALUES (idUser, isLogged);
+    UPDATE session SET logged = isLogged WHERE id_user = idUser;
 END $$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SetActionGroups` (IN `idAction` INT, IN `idGroup` INT)   BEGIN
