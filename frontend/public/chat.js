@@ -48,12 +48,12 @@ function handleOnClickStartChat() {
   const savedMessages = loadMessages();
 
   // Crear elementos HTML para los mensajes y agregarlos al contenedor
-  savedMessages.forEach((message) => {
-    const nuevaPlantilla = createMessageTemplate(message);
-    if (message.user === user.idUser) {
-      nuevaPlantilla.classList.add("own-message");
-    }
-    chatContainer.appendChild(nuevaPlantilla);
+  savedMessages.forEach(async (message) => {
+    const nuevaPlantilla = await createMessageTemplate(message);
+    console.log("message", message);
+    console.log("user.idUser", user.idUser);
+
+    messageList.appendChild(nuevaPlantilla);
   });
   console.log("Conexión WebSocket establecida con el servidor");
   // socket.send(JSON.stringify({ username: user.idUser, state: true }));
@@ -88,16 +88,14 @@ socket.addEventListener("open", () => {
   const savedMessages = loadMessages();
 
   // Crear elementos HTML para los mensajes y agregarlos al contenedor
-  savedMessages.forEach((message) => {
-    const nuevaPlantilla = createMessageTemplate(message);
-    if (message.user === user.idUser) {
-      nuevaPlantilla.classList.add("own-message");
-    }
-    chatContainer.appendChild(nuevaPlantilla);
+  savedMessages.forEach(async (message) => {
+    const nuevaPlantilla = await createMessageTemplate(message);
+
+    messageList.appendChild(nuevaPlantilla);
   });
 });
 
-socket.addEventListener("message", (event) => {
+socket.addEventListener("message", async (event) => {
   event.preventDefault();
   const datos = JSON.parse(event.data);
   console.log("message datos", datos);
@@ -107,10 +105,8 @@ socket.addEventListener("message", (event) => {
       localStorage.setItem("privateKey", datos.privateKey);
       break;
     case "message":
-      const nuevaPlantilla = createMessageTemplate(datos);
-      // Marcar mensajes propios como "own-message"
-      if (datos.user === user.idUser) nuevaPlantilla.classList.add("own-message");
-      contenedor.appendChild(nuevaPlantilla);
+      const nuevaPlantilla = await createMessageTemplate(datos);
+      messageList.appendChild(nuevaPlantilla);
       // Actualizar y guardar los mensajes en el Local Storage
       const chatMessages = loadMessages();
       chatMessages.push(datos);
@@ -153,22 +149,17 @@ function sendMessage() {
   }
 }
 
-function saveMessages() {
+function saveMessages(chatMessages) {
   // Crear un array para almacenar los mensajes
   const messages = [];
-  // Obtener todos los elementos hijos del contenedor
-  const messageElements = chatContainer.children;
   // Recorrer los elementos y extraer la información
-  for (let i = 0; i < messageElements.length; i++) {
-    const messageElement = messageElements[i];
-    const messageText = messageElement.querySelector(".message-text").textContent;
-    const dateText = messageElement.querySelector(".date").textContent; // Convierte la fecha en milisegundos
-
+  for (let i = 0; i < chatMessages.length; i++) {
+    const messageElement = chatMessages[i];
     // Agregar la información al array
     messages.push({
-      user: userText,
-      message: messageText,
-      date: dateText, // Convertir la fecha en un objeto de fecha
+      user: messageElement.user,
+      message: messageElement.message,
+      date: messageElement.date, // Convertir la fecha en un objeto de fecha
     });
   }
   // Convertir el array de objetos a una cadena JSON
@@ -177,36 +168,39 @@ function saveMessages() {
   localStorage.setItem("chatMessages", messagesJson);
 }
 
-function createMessageTemplate(data) {
-  const { id, idUser, username, message, date } = data;
+async function createMessageTemplate(data) {
+  console.log("createMessageTemplate", data);
+  const { user: idUser, message, date } = data;
   const messageContentContainer = document.createElement("div");
   messageContentContainer.className = "card-body";
 
   const messageContainer = document.createElement("div");
   messageContainer.style = "width: 30%";
   messageContainer.className = "card align-self-start";
-  messageContainer.id = id;
 
-  if (idUser === user) {
+  if (idUser === user.idUser) {
     messageContainer.className = "card align-self-end";
   }
 
   const newHeaderMessage = document.createElement("div");
   newHeaderMessage.className = "d-flex flex-row gap-3";
+
+  const userApi = await getUser(idUser)
+
   const newUser = document.createElement("p");
-  console.log(username);
-  newUser.innerHTML = username;
+  newUser.innerHTML = userApi.username;
   newUser.className = "card-title";
 
   const newDate = document.createElement("p");
   newDate.innerHTML = `${date.split(" ")[1]}`;
-  newDate.className = "card-title";
+  newDate.className = "card-title date";
+  newDate.id = "date";
 
   const newParagraph = document.createElement("p");
 
   newParagraph.innerHTML = message;
-  newParagraph.className = "card-text";
-  newParagraph.value = id;
+  newParagraph.className = "card-text message-text";
+  newParagraph.id = "message-text";
 
   newHeaderMessage.appendChild(newUser);
   newHeaderMessage.appendChild(newDate);
