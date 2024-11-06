@@ -1,3 +1,5 @@
+const sendVerificationEmail = require('../services/emailService')
+const { saveTokenToUser, generateToken } = require('../services/tokenServices')
 const SQL = require('../sql')
 
 const RouteLogin = async (req, res) => {
@@ -13,6 +15,26 @@ const RouteLogin = async (req, res) => {
     }
 
     await SQL.initConnection().then()
+    const userExists = await SQL.userExists(username)
+    if (!userExists) {
+      await SQL.closeConnection()
+      res.status(403).send({ data: { message: 'Usuario no existe' } })
+      return
+    }
+    
+    if(!userExists.email_verified && !userExists.token){
+      const token = generateToken(userExists.email);
+      await saveTokenToUser(token, userExists.email);
+      const verificationLink = `http://localhost:${process.env.PORT}/verify?token=${token}&email=${encodeURIComponent(userExists.email)}`;
+      await sendVerificationEmail(userExists.email, verificationLink);
+      await SQL.closeConnection();
+    }
+
+    if(!userExists.email_verified){
+      res.status(403).send({ data: { message: 'Usuario no verificado' } })
+      return
+    }
+    
     const user = await SQL.login(username, password)
     if (!user) {
       await SQL.closeConnection()
@@ -22,10 +44,6 @@ const RouteLogin = async (req, res) => {
 
     const isAdmin = await SQL.admin(user.id)
     await SQL.closeConnection()
-    if(!user.email_verified){
-      res.status(403).send({ data: { message: 'Usuario no verificado' } })
-      return
-    }
     res.status(200).send({ data: { isAdmin, idUser: user.id, authToken:user.token } })
   } catch (error) {
     console.info(error)

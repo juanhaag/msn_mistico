@@ -159,7 +159,7 @@ module.exports = {
   userExists: async (username) => {
     try {
       const [[userExists]] = await connection.execute('CALL UserExists(?)', [username])
-      return userExists.length > 0
+      return userExists[0]
     } catch (error) {
       console.info('error', error)
       return [{ data: 'error', message: error }]
