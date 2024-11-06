@@ -45,11 +45,11 @@ const getUser = async (idUser) => {
   const response = await fetch(`${URL}/user/${idUser}?token=${localStorage.getItem('token')}`)
   if (response.status === 200) {
     const { data } = await response.json()
-    return data[0]
+    return data[0][0]
   }
 }
 
-const setMessages = (messages) => {
+const setMessages = async (messages) => {
   if (messages && messages.length > 0) {
     messageList.childNodes.forEach((i) => {
       messageList.removeChild(i)
@@ -57,7 +57,14 @@ const setMessages = (messages) => {
 
     const { idUser: idUserSession } = JSON.parse(localStorage.getItem('user'))
 
-    messages.forEach((i) => {
+    const newMessages = await Promise.all(messages.map(async (i) => {
+      const {  idUser} = i
+      const user = await getUser(idUser).then()
+
+      return {...i, username: user.username}
+    }))
+
+    newMessages.forEach((i) => {
       const { id, idUser, username, message, date } = i
 
       const messageContentContainer = document.createElement('div')
@@ -74,8 +81,8 @@ const setMessages = (messages) => {
 
       const newHeaderMessage = document.createElement('div')
       newHeaderMessage.className = 'd-flex flex-row gap-3'
-
       const newUser = document.createElement('p')
+      console.log(username)
       newUser.innerHTML = username
       newUser.className = 'card-title'
 
