@@ -246,6 +246,10 @@ async function handleLoadWindow() {
 }
 
 function handleOnClickStartChat() {
+  if(!isConnectionOpen) {
+    alert("Sin conexión al servidor")
+    return
+  }
   startChatContainer.setAttribute('hidden', true)
   chatContainer.removeAttribute('hidden')
   const { idUser: idUserSession } = JSON.parse(localStorage.getItem('user'))
