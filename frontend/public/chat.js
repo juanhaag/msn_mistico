@@ -246,7 +246,7 @@ async function handleLoadWindow() {
 }
 
 function handleOnClickStartChat() {
-  if(!isConnectionOpen) {
+  if(ws.readyState !== ws.OPEN) {
     alert("Sin conexión al servidor")
     return
   }
